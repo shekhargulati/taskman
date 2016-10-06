@@ -1,0 +1,49 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.1.RELEASE")
+        classpath('se.transmode.gradle:gradle-docker:1.2')
+    }
+}
+group 'com.shekhargulati'
+version '1.0.0'
+
+apply plugin: 'java'
+apply plugin: 'spring-boot'
+apply plugin: 'docker'
+
+sourceCompatibility = 1.8
+
+jar {
+    baseName = "taskman"
+    version = ''
+}
+
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web")
+    compile("org.springframework.boot:spring-boot-starter-data-jpa")
+    compile("mysql:mysql-connector-java:5.1.39")
+    compile("org.hsqldb:hsqldb:2.3.4")
+
+    testCompile("org.springframework.boot:spring-boot-starter-test")
+}
+
+
+task buildDocker(type: Docker, dependsOn: build) {
+    push = false
+    applicationName = jar.baseName
+    dockerfile = file('docker/Dockerfile')
+    doFirst {
+        copy {
+            from jar
+            into stageDir
+        }
+    }
+}
